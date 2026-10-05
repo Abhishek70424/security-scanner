@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
 
   <title>Security Scanner</title>
 
@@ -54,31 +57,9 @@
       display: none;
     }
 
-    .valid {
-      background: #e8f5e9;
-      border: 2px solid #34a853;
-    }
-
     .invalid {
       background: #ffebee;
       border: 2px solid #ea4335;
-    }
-
-    .valid-title {
-      font-size: 26px;
-      font-weight: bold;
-      color: #188038;
-    }
-
-    .invalid-title {
-      font-size: 26px;
-      font-weight: bold;
-      color: #d93025;
-    }
-
-    .details {
-      font-size: 18px;
-      line-height: 1.7;
     }
 
   </style>
@@ -87,26 +68,32 @@
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-  <h1>👮 Security Scanner</h1>
+    <h1>👮 Security Scanner</h1>
 
-  <button
-    class="start-btn"
-    onclick="startScanner()">
-    📷 START CAMERA
-  </button>
+    <button class="start-btn"
+            onclick="startScanner()">
 
-  <div id="reader"></div>
+      📷 START CAMERA
 
-  <div id="result" class="result"></div>
+    </button>
 
-</div>
+    <div id="reader"></div>
+
+    <div id="result"
+         class="result">
+    </div>
+
+  </div>
 
 
 <script>
 
 let scanner = null;
+
+const APPS_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbyuuwuKRnKu4RqrJdp3lD0tEMsAsxwaaxuhRSdrG0nC10iLvi06jxnN2-AQ6I6ZVgWw/exec";
 
 
 function startScanner() {
@@ -115,12 +102,9 @@ function startScanner() {
 
   scanner = new Html5Qrcode("reader");
 
-
   scanner.start(
 
-    {
-      facingMode: "environment"
-    },
+    { facingMode: "environment" },
 
     {
       fps: 10,
@@ -132,92 +116,85 @@ function startScanner() {
 
     function(decodedText) {
 
-      scanner.stop().then(function() {
+      scanner.stop()
+        .then(function() {
 
-        checkPass(decodedText);
+          verifyPass(decodedText);
 
-      }).catch(function() {
+        })
+        .catch(function() {
 
-        checkPass(decodedText);
+          verifyPass(decodedText);
 
-      });
+        });
 
     },
 
     function(errorMessage) {
 
-      // QR not detected yet
+      // Ignore continuous scanning errors
 
     }
 
-  )
+  ).catch(function(error) {
 
-  .catch(function(error) {
-
-    document.getElementById("result").style.display = "block";
-
-    document.getElementById("result").className =
-      "result invalid";
-
-    document.getElementById("result").innerHTML =
-
-      "<div class='invalid-title'>" +
-      "❌ Camera Error" +
-      "</div>" +
-
-      "<p>Camera start nahi ho pa raha.</p>" +
-
-      "<p><small>" +
-      error +
-      "</small></p>";
+    showError(error);
 
   });
 
 }
 
 
-function checkPass(passId) {
+function verifyPass(passId) {
 
-  document.getElementById("result").style.display =
-    "block";
+  document.getElementById("result").style.display = "block";
 
   document.getElementById("result").className =
     "result";
 
   document.getElementById("result").innerHTML =
-    "⏳ Checking Pass...";
+    "<h2>⏳ Checking Pass...</h2>" +
+    "<p>Please wait...</p>";
 
 
-  /*
-     TEMPORARY TEST
+  // Open Apps Script verification page
 
-     Abhi sirf QR ke andar jo value hai
-     woh screen par show karenge.
+  const url =
+    APPS_SCRIPT_URL +
+    "?verify=" +
+    encodeURIComponent(passId);
 
-     Google Sheet verification next step mein connect karenge.
-  */
 
-  document.getElementById("result").className =
-    "result valid";
+  setTimeout(function() {
 
-  document.getElementById("result").innerHTML =
+    window.location.href = url;
 
-    "<div class='valid-title'>" +
-    "🟢 QR SCANNED" +
-    "</div>" +
+  }, 500);
 
-    "<div class='details'>" +
+}
 
-    "<b>Pass ID:</b><br>" +
 
-    passId +
+function showError(error) {
 
-    "</div>";
+  const result =
+    document.getElementById("result");
+
+  result.style.display = "block";
+
+  result.className =
+    "result invalid";
+
+  result.innerHTML =
+    "<h2>❌ Camera Error</h2>" +
+    "<p>Camera start nahi ho pa raha.</p>" +
+    "<small>" +
+    error +
+    "</small>";
 
 }
 
 </script>
 
 </body>
+
 </html>
-<!-- Pages deployment refresh -->
