@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Security Scanner</title>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.10);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #reader {
+      width: 100%;
+      margin: 20px auto;
+    }
+
+    .start-btn {
+      width: 100%;
+      padding: 16px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .valid {
+      background: #e8f5e9;
+      border: 2px solid #34a853;
+    }
+
+    .invalid {
+      background: #ffebee;
+      border: 2px solid #ea4335;
+    }
+
+    .valid-title {
+      font-size: 26px;
+      font-weight: bold;
+      color: #188038;
+    }
+
+    .invalid-title {
+      font-size: 26px;
+      font-weight: bold;
+      color: #d93025;
+    }
+
+    .details {
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>👮 Security Scanner</h1>
+
+  <button
+    class="start-btn"
+    onclick="startScanner()">
+    📷 START CAMERA
+  </button>
+
+  <div id="reader"></div>
+
+  <div id="result" class="result"></div>
+
+</div>
+
+
+<script>
+
+let scanner = null;
+
+
+function startScanner() {
+
+  document.getElementById("result").style.display = "none";
+
+  scanner = new Html5Qrcode("reader");
+
+
+  scanner.start(
+
+    {
+      facingMode: "environment"
+    },
+
+    {
+      fps: 10,
+      qrbox: {
+        width: 250,
+        height: 250
+      }
+    },
+
+    function(decodedText) {
+
+      scanner.stop().then(function() {
+
+        checkPass(decodedText);
+
+      }).catch(function() {
+
+        checkPass(decodedText);
+
+      });
+
+    },
+
+    function(errorMessage) {
+
+      // QR not detected yet
+
+    }
+
+  )
+
+  .catch(function(error) {
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("result").className =
+      "result invalid";
+
+    document.getElementById("result").innerHTML =
+
+      "<div class='invalid-title'>" +
+      "❌ Camera Error" +
+      "</div>" +
+
+      "<p>Camera start nahi ho pa raha.</p>" +
+
+      "<p><small>" +
+      error +
+      "</small></p>";
+
+  });
+
+}
+
+
+function checkPass(passId) {
+
+  document.getElementById("result").style.display =
+    "block";
+
+  document.getElementById("result").className =
+    "result";
+
+  document.getElementById("result").innerHTML =
+    "⏳ Checking Pass...";
+
+
+  /*
+     TEMPORARY TEST
+
+     Abhi sirf QR ke andar jo value hai
+     woh screen par show karenge.
+
+     Google Sheet verification next step mein connect karenge.
+  */
+
+  document.getElementById("result").className =
+    "result valid";
+
+  document.getElementById("result").innerHTML =
+
+    "<div class='valid-title'>" +
+    "🟢 QR SCANNED" +
+    "</div>" +
+
+    "<div class='details'>" +
+
+    "<b>Pass ID:</b><br>" +
+
+    passId +
+
+    "</div>";
+
+}
+
+</script>
+
+</body>
+</html>
